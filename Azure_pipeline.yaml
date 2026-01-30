@@ -16,23 +16,30 @@ steps:
   - script: npx playwright install chromium --with-deps
     displayName: 'Install Playwright Browser'
 
-  # Run TypeScript Tests
+  # 1. Run TypeScript Tests (using the config we fixed earlier)
   - script: npm run test:ts
     displayName: 'Run Playwright TS Tests'
     env:
       LT_USERNAME: $(LT_USERNAME)
       LT_ACCESS_KEY: $(LT_ACCESS_KEY)
 
-  # Run JavaScript Test
+  # 2. Run JavaScript Single Test
   - script: npm run test:js
     displayName: 'Run Playwright JS Single Test'
     env:
       LT_USERNAME: $(LT_USERNAME)
       LT_ACCESS_KEY: $(LT_ACCESS_KEY)
 
-  # Optional: Publish Results
+  # 3. Run JavaScript Parallel Tests
+  - script: npm run test:js-parallel
+    displayName: 'Run Playwright JS Parallel Tests'
+    env:
+      LT_USERNAME: $(LT_USERNAME)
+      LT_ACCESS_KEY: $(LT_ACCESS_KEY)
+
+  # Publish Results
   - task: PublishTestResults@2
-    condition: succeededOrFailed() # Changed from 'if' to 'condition'
+    condition: succeededOrFailed() 
     inputs:
       testResultsFiles: '**/test-results/*.xml'
       testRunTitle: 'Playwright Combined Results'
