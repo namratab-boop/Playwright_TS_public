@@ -32,7 +32,7 @@ steps:
 
   # Optional: Publish Results
   - task: PublishTestResults@2
-    if: succeededOrFailed()
+    condition: succeededOrFailed() # Changed from 'if' to 'condition'
     inputs:
       testResultsFiles: '**/test-results/*.xml'
       testRunTitle: 'Playwright Combined Results'
