@@ -53,7 +53,6 @@ test('homepage should have correct title', async ({ page }) => {
   await page.waitForTimeout(3000);
   await page.locator('a[role="button"] >> span:has-text("My account")').hover();
   await page.locator('span', { hasText: 'Logout' }).click();
-  await page.waitForTimeout(2000);
   await expect(page).toHaveTitle('Account Logout');
 
 });
