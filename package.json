@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Unified Playwright TS and JS automation",
   "scripts": {
-    "test:ts": "npx playwright test --config=Playwright-TS/",
+    "test:ts": "npx playwright test --config=Playwright-TS/Playwright-TS/",
     "test:js": "node Playwright-JS/playwright-single.js",
     "test:js-parallel": "node Playwright-JS/playwright-parallel.js",
     "test:all": "npm run test:ts && npm run test:js"
