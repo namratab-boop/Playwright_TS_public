@@ -16,8 +16,8 @@ steps:
   - script: npx playwright install chromium --with-deps
     displayName: 'Install Playwright Browser'
 
-  # 1. Run TypeScript Tests (using the config we fixed earlier)
-  - script: npm run test:ts
+  # 1. Run TypeScript Tests 
+  - script: npx playwright test --config=Playwright-TS/Playwright-TS/
     displayName: 'Run Playwright TS Tests'
     env:
       LT_USERNAME: $(LT_USERNAME)
