@@ -16,40 +16,51 @@ steps:
   - script: npx playwright install chromium --with-deps
     displayName: 'Install Playwright Browser'
 
-  # 1. Run Playwright Tests (TS & JS)
+  # 1. Run Playwright Tests TS 
   - script: npx playwright test --config=Playwright-TS/Playwright-TS/
     displayName: 'Run Playwright TS Tests'
     env:
       LT_USERNAME: $(LT_USERNAME)
       LT_ACCESS_KEY: $(LT_ACCESS_KEY)
-
+# 2. Run JavaScript Single Test
   - script: npm run test:js
     displayName: 'Run Playwright JS Single Test'
     env:
       LT_USERNAME: $(LT_USERNAME)
       LT_ACCESS_KEY: $(LT_ACCESS_KEY)
 
-  # 2. PHASE 2: JMeter Performance Testing
-  # We use Chocolatey (pre-installed on Windows agents) to quickly install JMeter
+  - script: npm run test:js-parallel
+    displayName: 'Run Playwright JS Parallel Tests'
+    env:
+      LT_USERNAME: $(LT_USERNAME)
+      LT_ACCESS_KEY: $(LT_ACCESS_KEY)
+
+  # 2. PHASE 2: JMETER PERFORMANCE TESTING
   - powershell: |
       choco install jmeter -y
-      refreshenv
-    displayName: 'Install Apache JMeter'
+      # Force refresh of path for the current session
+      $env:Path += ";$env:JMETER_PATH"
+      jmeter -version
+    displayName: 'Install and Verify JMeter'
 
   - powershell: |
-      jmeter -n -t Performance-JMeter/performance.jmx -l results.jtl -e -o $(Build.BinariesDirectory)/perf-reports
+      # Create directory for reports to avoid 'folder not found' errors
+      New-Item -ItemType Directory -Force -Path $(Build.BinariesDirectory)/perf-reports
+      jmeter -n -t Performance-JMeter/performance.jmx -l $(Build.BinariesDirectory)/results.jtl -e -o $(Build.BinariesDirectory)/perf-reports
     displayName: 'Run JMeter Performance Test'
     continueOnError: true 
 
-  # 3. PHASE 2: Publish Performance & Test Results
+  # 3. PHASE 2: UNIFIED REPORTING & ARTIFACTS
   - task: PublishTestResults@2
+    displayName: 'Publish Playwright Results'
     condition: succeededOrFailed() 
     inputs:
       testResultsFiles: '**/test-results/*.xml'
       testRunTitle: 'Playwright Combined Results'
 
+  # This publishes the HTML Dashboard you saw locally to the Azure Pipeline UI
   - task: PublishBuildArtifacts@1
-    displayName: 'Publish Performance Dashboard'
+    displayName: 'Publish JMeter Performance Dashboard'
     condition: succeededOrFailed()
     inputs:
       PathtoPublish: '$(Build.BinariesDirectory)/perf-reports'
