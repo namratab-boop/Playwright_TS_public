@@ -22,6 +22,7 @@ steps:
     env:
       LT_USERNAME: $(LT_USERNAME)
       LT_ACCESS_KEY: $(LT_ACCESS_KEY)
+      
 # 2. Run JavaScript Single Test
   - script: npm run test:js
     displayName: 'Run Playwright JS Single Test'
@@ -38,15 +39,17 @@ steps:
   # 2. PHASE 2: JMETER PERFORMANCE TESTING
   - powershell: |
       choco install jmeter -y
-      # Force refresh of path for the current session
+      # Refresh environment path for current session
       $env:Path += ";$env:JMETER_PATH"
       jmeter -version
     displayName: 'Install and Verify JMeter'
 
   - powershell: |
-      # Create directory for reports to avoid 'folder not found' errors
+      # Create report directory in the Binaries folder to prevent 'not found' errors
       New-Item -ItemType Directory -Force -Path $(Build.BinariesDirectory)/perf-reports
-      jmeter -n -t Performance-JMeter/performance.jmx -l $(Build.BinariesDirectory)/results.jtl -e -o $(Build.BinariesDirectory)/perf-reports
+      
+      # FIX: Use $(Build.SourcesDirectory) to point exactly to your .jmx file
+      jmeter -n -t $(Build.SourcesDirectory)/Performance-JMeter/performance.jmx -l $(Build.BinariesDirectory)/results.jtl -e -o $(Build.BinariesDirectory)/perf-reports
     displayName: 'Run JMeter Performance Test'
     continueOnError: true 
 
