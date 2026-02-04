@@ -4,10 +4,6 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-variables:
-  # Standard path for JMeter after Chocolatey installation
-  JMETER_PATH: 'C:\ProgramData\chocolatey\bin'
-
 steps:
   - task: NodeTool@0
     inputs:
@@ -20,13 +16,14 @@ steps:
   - script: npx playwright install chromium --with-deps
     displayName: 'Install Playwright Browser'
 
-  # --- 1. RUN PLAYWRIGHT TESTS (TS & JS) ---
+  # 1. Run Playwright Tests TS 
   - script: npx playwright test --config=Playwright-TS/Playwright-TS/
     displayName: 'Run Playwright TS Tests'
     env:
       LT_USERNAME: $(LT_USERNAME)
       LT_ACCESS_KEY: $(LT_ACCESS_KEY)
-
+      
+# 2. Run JavaScript Single Test
   - script: npm run test:js
     displayName: 'Run Playwright JS Single Test'
     env:
@@ -39,31 +36,24 @@ steps:
       LT_USERNAME: $(LT_USERNAME)
       LT_ACCESS_KEY: $(LT_ACCESS_KEY)
 
-  # --- 2. PHASE 2: JMETER PERFORMANCE TESTING ---
+  # 2. PHASE 2: JMETER PERFORMANCE TESTING
   - powershell: |
       choco install jmeter -y
-      # Force update the PATH environment variable so the agent finds 'jmeter'
+      # Refresh environment path for current session
       $env:Path += ";$env:JMETER_PATH"
       jmeter -version
     displayName: 'Install and Verify JMeter'
 
   - powershell: |
-      # Create clean directories for artifacts
-      New-Item -ItemType Directory -Force -Path "$(Build.BinariesDirectory)\perf-reports"
+      # Create report directory in the Binaries folder to prevent 'not found' errors
+      New-Item -ItemType Directory -Force -Path $(Build.BinariesDirectory)/perf-reports
       
-      # FIX: Use absolute paths and ensure the file exists before running
-      $jmxFile = "$(Build.SourcesDirectory)\Performance-JMeter\performance.jmx"
-      if (Test-Path $jmxFile) {
-          # Use quotation marks for paths with spaces to prevent 'Errorlevel 1'
-          jmeter -n -t "$jmxFile" -l "$(Build.BinariesDirectory)\results.jtl" -e -o "$(Build.BinariesDirectory)\perf-reports"
-      } else {
-          Write-Error "ERROR: JMeter Test Plan not found at $jmxFile"
-          exit 1
-      }
+      # FIX: Use $(Build.SourcesDirectory) to point exactly to your .jmx file
+      jmeter -n -t $(Build.SourcesDirectory)/Performance-JMeter/performance.jmx -l $(Build.BinariesDirectory)/results.jtl -e -o $(Build.BinariesDirectory)/perf-reports
     displayName: 'Run JMeter Performance Test'
     continueOnError: true 
 
-  # --- 3. PHASE 2: UNIFIED REPORTING & ARTIFACTS ---
+  # 3. PHASE 2: UNIFIED REPORTING & ARTIFACTS
   - task: PublishTestResults@2
     displayName: 'Publish Playwright Results'
     condition: succeededOrFailed() 
@@ -71,10 +61,11 @@ steps:
       testResultsFiles: '**/test-results/*.xml'
       testRunTitle: 'Playwright Combined Results'
 
+  # This publishes the HTML Dashboard you saw locally to the Azure Pipeline UI
   - task: PublishBuildArtifacts@1
     displayName: 'Publish JMeter Performance Dashboard'
     condition: succeededOrFailed()
     inputs:
-      PathtoPublish: '$(Build.BinariesDirectory)\perf-reports'
+      PathtoPublish: '$(Build.BinariesDirectory)/perf-reports'
       ArtifactName: 'JMeter-Performance-Dashboard'
       publishLocation: 'Container'
