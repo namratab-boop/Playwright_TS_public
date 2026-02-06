@@ -41,17 +41,19 @@ steps:
 
   # 3. PHASE: API TESTING (HYPEREXECUTE)
   # Orchestrate hybrid tests (Rest Assured + Selenium) via HyperExecute CLI
-  - powershell: |
-      # 1. Download HyperExecute CLI for Windows
-      Invoke-WebRequest -Uri "https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe" -OutFile "hyperexecute.exe"
-      
-      # 2. Execute HyperExecute with your credentials and configuration
-      # Using --user and --key ensures variables are passed correctly from Azure secrets.
-      ./hyperexecute.exe --config API-RestAssured-hyper/hyperexecute.yaml
-    displayName: 'Run HyperExecute Hybrid Tests'
-    env:
-      LT_USERNAME: $(LT_USERNAME)
-      LT_ACCESS_KEY: $(LT_ACCESS_KEY)
+  
+    -script: |
+        # Download Hyperexecute CLI for macOS (adjust for other OS)
+        name: Download HyperExecute CLI
+        script: wget https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe
+        
+        # Grant execute permission to the downloaded binary
+        name: Make HyperExecute executable
+        script: chmod +x hyperexecute
+        
+        # Run Hyperexecute with user credentials and configuration file
+        name: Run Hyperexecute Tests
+        script: ./hyperexecute --user <your_username> --key <your_access_key> API-RestAssured-hyper/hyperexecute.yaml  
 
   # 4. PHASE: JMETER PERFORMANCE TESTING
   - powershell: |
