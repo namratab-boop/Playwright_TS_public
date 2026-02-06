@@ -7,6 +7,7 @@ node_modules/
 # ignore all log files
 *.log
 .env
+**/.idea/
 # JMeter
 Performance-JMeter/performance-report/
 Performance-JMeter/reports/
@@ -18,3 +19,17 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.local-browsers
+
+# --- REST-Assured & HyperExecute Fixes ---
+# Ignore build artifacts and local caches
+**/target/
+**/m2_cache_dir/
+**/*.class
+
+# Ignore IDE files that cause conflicts
+**/*.iml
+**/.idea/
+
+**/*.hyperexecute
+**/*.updatedhyperexecute.yaml
+
