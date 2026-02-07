@@ -30,7 +30,7 @@ public class IosSimulator {
 
 
 
-            capabilities.setCapability("app", appId);
+            capabilities.setCapability("app", "lt://APP10160311521770493208116530");
 
 
         capabilities.setCapability("build", "HYP JUNIT Native App automation");

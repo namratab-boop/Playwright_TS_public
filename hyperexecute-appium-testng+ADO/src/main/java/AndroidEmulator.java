@@ -32,7 +32,7 @@ public class AndroidEmulator {
         capabilities.setCapability("deviceName", deviceName); //Enter the name of the device here
         capabilities.setCapability("isRealMobile", false);
         capabilities.setCapability("platformVersion",platformVersion);
-        capabilities.setCapability("app","lt://proverbial-android"); //Enter the App ID here
+        capabilities.setCapability("app","lt://APP10160441901770493306505751"); //Enter the App ID here
         capabilities.setCapability("deviceOrientation", "PORTRAIT");
         capabilities.setCapability("console",true);
         capabilities.setCapability("network",false);

@@ -12,9 +12,9 @@
     </test>
 
     <test name="AndroidEmulatorTest_2">
-        <parameter name="platformVersion" value="12" />
+        <parameter name="platformVersion" value="16" />
         <parameter name="os" value="Android" />
-        <parameter name="deviceName" value="Galaxy S22 5G" />
+        <parameter name="deviceName" value="Galaxy S25 Ultra" />
         <classes>
             <class name="AndroidEmulator" />
         </classes>

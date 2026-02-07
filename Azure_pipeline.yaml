@@ -8,132 +8,185 @@ variables:
   API_GROUPS: 'smoke'
 
 steps:
-  # Install Node.js
-  - task: NodeTool@0
-    displayName: 'Install Node.js'
-    inputs:
-      versionSpec: '18.x'
+# =========================
+# NODE & PLAYWRIGHT SETUP
+# =========================
+- task: NodeTool@0
+  displayName: 'Install Node.js'
+  inputs:
+    versionSpec: '18.x'
 
-  # Install project dependencies
-  - script: npm install
-    displayName: 'Install Dependencies'
+- script: npm install
+  displayName: 'Install Dependencies'
 
-  # Install Playwright browser
-  - script: npx playwright install chromium --with-deps
-    displayName: 'Install Playwright Browser'
+- script: npx playwright install chromium --with-deps
+  displayName: 'Install Playwright Browser'
 
-  # Run Playwright TypeScript tests
-  - script: npx playwright test --config=Playwright-TS/Playwright-TS/
-    displayName: 'Run Playwright TS Tests'
-    env:
-      LT_USERNAME: $(LT_USERNAME)
-      LT_ACCESS_KEY: $(LT_ACCESS_KEY)
+- script: npx playwright test --config=Playwright-TS/Playwright-TS/
+  displayName: 'Run Playwright TS Tests'
+  env:
+    LT_USERNAME: $(LT_USERNAME)
+    LT_ACCESS_KEY: $(LT_ACCESS_KEY)
 
-  # Run Playwright JavaScript single test
-  - script: npm run test:js
-    displayName: 'Run Playwright JS Single Test'
-    env:
-      LT_USERNAME: $(LT_USERNAME)
-      LT_ACCESS_KEY: $(LT_ACCESS_KEY)
+- script: npm run test:js
+  displayName: 'Run Playwright JS Single Test'
+  env:
+    LT_USERNAME: $(LT_USERNAME)
+    LT_ACCESS_KEY: $(LT_ACCESS_KEY)
 
-  # Run Playwright JavaScript tests in parallel
-  - script: npm run test:js-parallel
-    displayName: 'Run Playwright JS Parallel Tests'
-    env:
-      LT_USERNAME: $(LT_USERNAME)
-      LT_ACCESS_KEY: $(LT_ACCESS_KEY)
+- script: npm run test:js-parallel
+  displayName: 'Run Playwright JS Parallel Tests'
+  env:
+    LT_USERNAME: $(LT_USERNAME)
+    LT_ACCESS_KEY: $(LT_ACCESS_KEY)
 
-  # PHASE: API TESTING (HyperExecute - Rest Assured)
-  - powershell: |
-      Write-Host "Downloading HyperExecute CLI..."
-      Invoke-WebRequest `
-        -Uri https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe `
-        -OutFile hyperexecute.exe
+# =========================
+# HYPEREXECUTE – API TESTS
+# =========================
+- powershell: |
+    Write-Host "Downloading HyperExecute CLI..."
+    Invoke-WebRequest `
+      -Uri https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe `
+      -OutFile hyperexecute.exe
 
-      Write-Host "Switching to API-RestAssured-hyper directory..."
-      cd API-RestAssured-hyper
+    Write-Host "Running API Rest Assured tests..."
+    cd API-RestAssured-hyper
 
-      Write-Host "Running HyperExecute API tests..."
+    ..\hyperexecute.exe `
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config hyperexecute.yaml
+  displayName: 'Run HyperExecute API Tests'
+
+# =========================
+# HYPEREXECUTE – SMART UI
+# =========================
+- powershell: |
+    Write-Host "Downloading HyperExecute CLI..."
+    Invoke-WebRequest `
+      -Uri https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe `
+      -OutFile hyperexecute.exe
+
+    Write-Host "Running Smart UI tests..."
+    cd Hyperexecute-smart-ui
+
+    ..\hyperexecute.exe `
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config hyperexecute.yaml
+  displayName: 'Run HyperExecute Smart UI Tests'
+
+# =========================
+# HYPEREXECUTE – APPIUM (ANDROID + IOS)
+# =========================
+- powershell: |
+    Write-Host "Downloading HyperExecute CLI..."
+    Invoke-WebRequest `
+      -Uri https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe `
+      -OutFile hyperexecute.exe
+
+    Write-Host "Switching to Appium directory..."
+    cd hyperexecute-appium-testng+ADO
+
+    # -------- ANDROID REAL DEVICE --------
+    Write-Host "Running Android Real Device (Multiple)..."
+    ..\hyperexecute.exe `
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config yaml/android/realdevice/hyp-rd-android-multiple.yaml
+    
+    Write-Host "Running Android Real Device (Single)..."
       ..\hyperexecute.exe `
-        --user $(LT_USERNAME) `
-        --key $(LT_ACCESS_KEY) `
-        --config hyperexecute.yaml
-    displayName: 'Run HyperExecute API Tests'
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config yaml/android/realdevice/hyp-rd-android-single.yaml
 
-  # PHASE: SMART UI TESTING (HyperExecute - Smart UI)
-  - powershell: |
-      Write-Host "Downloading HyperExecute CLI..."
-      Invoke-WebRequest `
-        -Uri https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe `
-        -OutFile hyperexecute.exe
+    # -------- ANDROID EMULATOR --------
+    Write-Host "Running Android Emulator (Single)..."
+    ..\hyperexecute.exe `
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config yaml/android/emulator/hyp-emulator-android-single.yaml
 
-      Write-Host "Switching to HyperExecute Smart UI directory..."
-      cd Hyperexecute-smart-ui
+    Write-Host "Running Android Emulator (Multiple)..."
+    ..\hyperexecute.exe `
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config yaml/android/emulator/hyp-emulator-android-multiple.yaml
 
-      Write-Host "Running HyperExecute Smart UI tests..."
-      ..\hyperexecute.exe `
-        --user $(LT_USERNAME) `
-        --key $(LT_ACCESS_KEY) `
-        --config hyperexecute.yaml
-    displayName: 'Run HyperExecute Smart UI Tests'
+    # -------- IOS REAL DEVICE --------
+    Write-Host "Running iOS Real Device (Multiple)..."
+    ..\hyperexecute.exe `
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config yaml/ios/realdevice/hyp-rd-ios-multiple.yaml
 
-  # PHASE: JMETER PERFORMANCE TESTING
-  - powershell: |
-      choco install jmeter -y
-      jmeter -v
-    displayName: 'Install and Verify JMeter'
+    Write-Host "Running iOS Real Device (Single)..."
+    ..\hyperexecute.exe `
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config yaml/ios/realdevice/hyp-rd-ios-single.yaml
 
-  - powershell: |
-      New-Item -ItemType Directory -Force `
-        -Path "$(Build.BinariesDirectory)\perf-reports"
+    # -------- IOS SIMULATOR --------
+    Write-Host "Running iOS Simulator (Single)..."
+    ..\hyperexecute.exe `
+      --user $(LT_USERNAME) `
+      --key $(LT_ACCESS_KEY) `
+      --config yaml/ios/simulator/hyp-sim-ios-single.yaml
+  displayName: 'Run HyperExecute Appium (Android + iOS)'
 
-      $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-      $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+# =========================
+# JMETER INSTALL
+# =========================
+- powershell: |
+    choco install jmeter -y
+    jmeter -v
+  displayName: 'Install and Verify JMeter'
 
-      Invoke-WebRequest `
-        -UseBasicParsing `
-        -Uri "https://api-hyperexecute.lambdatest.com/reception/api/project/01KGS9WBZTM8R4AW3HBQW8GXWY/trigger-job" `
-        -Method "POST" `
-        -WebSession $session `
-        -Headers @{
-          "authority"="api-hyperexecute.lambdatest.com"
-          "method"="POST"
-          "path"="/reception/api/project/01KGS9WBZTM8R4AW3HBQW8GXWY/trigger-job"
-          "scheme"="https"
-          "accept"="application/json"
-          "accept-encoding"="gzip, deflate, br, zstd"
-          "accept-language"="en-US,en;q=0.9"
-          "authorization"="Basic bmFtcmF0YWJ0ZXN0bXVhaTpMVF9QU29aUDN5THVRNnYxa2lVdjBxMGpvaUFnYzhYUWdrNXFGVUZ4SW9yVnhkMGgwNQ=="
-          "dnt"="1"
-          "origin"="https://hyperexecute.lambdatest.com"
-          "priority"="u=1, i"
-          "referer"="https://hyperexecute.lambdatest.com/hyperexecute/projects/detail?projectId=01KGS9WBZTM8R4AW3HBQW8GXWY"
-          "sec-ch-ua"="`"Not(A:Brand`";v=`"8`", `"Chromium`";v=`"144`", `"Google Chrome`";v=`"144`""
-          "sec-ch-ua-mobile"="?0"
-          "sec-ch-ua-platform"="`"Windows`""
-          "sec-fetch-dest"="empty"
-          "sec-fetch-mode"="cors"
-          "sec-fetch-site"="same-site"
-          "sec-gpc"="1"
-        } `
-        -ContentType "application/json" `
-        -Body "{`"jmeter`":[{`"region`":`"eastus`",`"users`":100,`"duration`":60,`"rampup`":60,`"splitcsv`":false,`"jmx`":`"performance.jmx`"}],`"jobLabel`":[],`"globalTimeout`":90}"
+# =========================
+# JMETER – HYPEREXECUTE API
+# =========================
+- powershell: |
+    New-Item -ItemType Directory -Force `
+      -Path "$(Build.BinariesDirectory)\perf-reports"
 
-  # REPORTING & ARTIFACTS
-  - task: PublishTestResults@2
-    displayName: 'Publish Combined Test Results'
-    condition: succeededOrFailed()
-    inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: |
-        **/test-results/*.xml
-        **/surefire-reports/TEST-*.xml
-      testRunTitle: 'Playwright & HyperExecute Results'
+    Invoke-WebRequest `
+      -Uri "https://api-hyperexecute.lambdatest.com/reception/api/project/01KGS9WBZTM8R4AW3HBQW8GXWY/trigger-job" `
+      -Method POST `
+      -Headers @{
+        "Authorization" = "Basic $(JMETER_AUTH)"
+        "Content-Type"  = "application/json"
+      } `
+      -Body '{
+        "jmeter":[{
+          "region":"eastus",
+          "users":100,
+          "duration":60,
+          "rampup":60,
+          "splitcsv":false,
+          "jmx":"performance.jmx"
+        }],
+        "globalTimeout":90
+      }'
+  displayName: 'Trigger JMeter HyperExecute Job'
 
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish JMeter Performance Dashboard'
-    condition: succeededOrFailed()
-    inputs:
-      PathtoPublish: '$(Build.BinariesDirectory)/perf-reports'
-      ArtifactName: 'JMeter-Performance-Dashboard'
-      publishLocation: 'Container'
+# =========================
+# REPORTS & ARTIFACTS
+# =========================
+- task: PublishTestResults@2
+  displayName: 'Publish Combined Test Results'
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: |
+      **/test-results/*.xml
+      **/surefire-reports/TEST-*.xml
+    testRunTitle: 'Playwright & HyperExecute Results'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish JMeter Performance Dashboard'
+  condition: succeededOrFailed()
+  inputs:
+    PathtoPublish: '$(Build.BinariesDirectory)/perf-reports'
+    ArtifactName: 'JMeter-Performance-Dashboard'
+    publishLocation: 'Container'
