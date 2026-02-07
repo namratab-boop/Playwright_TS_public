@@ -32,9 +32,9 @@ public class AndroidApp {
             capabilities.setCapability("deviceOrientation", "PORTRAIT");
             capabilities.setCapability("console", true);
             capabilities.setCapability("network", false);
-            // capabilities.setCapability("visual", true);
+            capabilities.setCapability("autoAcceptAlerts", true);
             capabilities.setCapability("devicelog", true);
-            // capabilities.setCapability("geoLocation", "HK");
+            capabilities.setCapability("autoGrantPermissions", true);
 
             String hub = "https://" + userName + ":" + accessKey + gridURL;
             driver = new AppiumDriver(new URL(hub), capabilities);
@@ -70,7 +70,7 @@ public class AndroidApp {
             home.click();
 
             // Takes to speed test page
-            MobileElement speedtest = (MobileElement) driver.findElementById("com.lambdatest.proverbial:id/speedTest");
+            MobileElement speedtest = (MobileElement) driver.findElementById("//*[@resource-id="com.lambdatest.proverbial:id/geoLocation"]");
             speedtest.click();
             Thread.sleep(5000);
 

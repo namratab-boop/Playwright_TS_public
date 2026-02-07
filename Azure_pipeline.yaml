@@ -148,26 +148,39 @@ steps:
 # =========================
 - powershell: |
     New-Item -ItemType Directory -Force `
-      -Path "$(Build.BinariesDirectory)\perf-reports"
+        -Path "$(Build.BinariesDirectory)\perf-reports"
 
-    Invoke-WebRequest `
-      -Uri "https://api-hyperexecute.lambdatest.com/reception/api/project/01KGS9WBZTM8R4AW3HBQW8GXWY/trigger-job" `
-      -Method POST `
-      -Headers @{
-        "Authorization" = "Basic $(JMETER_AUTH)"
-        "Content-Type"  = "application/json"
-      } `
-      -Body '{
-        "jmeter":[{
-          "region":"eastus",
-          "users":100,
-          "duration":60,
-          "rampup":60,
-          "splitcsv":false,
-          "jmx":"performance.jmx"
-        }],
-        "globalTimeout":90
-      }'
+      $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+      $session.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+
+      Invoke-WebRequest `
+        -UseBasicParsing `
+        -Uri "https://api-hyperexecute.lambdatest.com/reception/api/project/01KGS9WBZTM8R4AW3HBQW8GXWY/trigger-job" `
+        -Method "POST" `
+        -WebSession $session `
+        -Headers @{
+          "authority"="api-hyperexecute.lambdatest.com"
+          "method"="POST"
+          "path"="/reception/api/project/01KGS9WBZTM8R4AW3HBQW8GXWY/trigger-job"
+          "scheme"="https"
+          "accept"="application/json"
+          "accept-encoding"="gzip, deflate, br, zstd"
+          "accept-language"="en-US,en;q=0.9"
+          "authorization"="Basic bmFtcmF0YWJ0ZXN0bXVhaTpMVF9QU29aUDN5THVRNnYxa2lVdjBxMGpvaUFnYzhYUWdrNXFGVUZ4SW9yVnhkMGgwNQ=="
+          "dnt"="1"
+          "origin"="https://hyperexecute.lambdatest.com"
+          "priority"="u=1, i"
+          "referer"="https://hyperexecute.lambdatest.com/hyperexecute/projects/detail?projectId=01KGS9WBZTM8R4AW3HBQW8GXWY"
+          "sec-ch-ua"="`"Not(A:Brand`";v=`"8`", `"Chromium`";v=`"144`", `"Google Chrome`";v=`"144`""
+          "sec-ch-ua-mobile"="?0"
+          "sec-ch-ua-platform"="`"Windows`""
+          "sec-fetch-dest"="empty"
+          "sec-fetch-mode"="cors"
+          "sec-fetch-site"="same-site"
+          "sec-gpc"="1"
+        } `
+        -ContentType "application/json" `
+        -Body "{`"jmeter`":[{`"region`":`"eastus`",`"users`":100,`"duration`":60,`"rampup`":60,`"splitcsv`":false,`"jmx`":`"performance.jmx`"}],`"jobLabel`":[],`"globalTimeout`":90}"
   displayName: 'Trigger JMeter HyperExecute Job'
 
 # =========================
