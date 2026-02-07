@@ -26,13 +26,7 @@ public class IosSimulator {
     @Parameters(value = { "deviceName", "platformVersion", "os" })
     public void setUp(String deviceName, String platformVersion, String os) throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
-
-
-
-
-            capabilities.setCapability("app", "lt://APP10160311521770493208116530");
-
-
+        capabilities.setCapability("app", "lt://APP10160311521770493208116530");
         capabilities.setCapability("build", "HYP JUNIT Native App automation");
         capabilities.setCapability("name", "HYP Java JUnit Android Test");
         capabilities.setCapability("platformName", os);
