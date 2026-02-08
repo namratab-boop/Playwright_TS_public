@@ -193,10 +193,28 @@ steps:
         -Method "POST" `
         -WebSession $session `
         -Headers @{
+          "authority"="api-hyperexecute.lambdatest.com"
+          "method"="POST"
+          "path"="/reception/api/project/01KGS9WBZTM8R4AW3HBQW8GXWY/trigger-job"
+          "scheme"="https"
+          "accept"="application/json"
+          "accept-encoding"="gzip, deflate, br, zstd"
+          "accept-language"="en-US,en;q=0.9"
           "authorization"="Basic bmFtcmF0YWJ0ZXN0bXVhaTpMVF9QU29aUDN5THVRNnYxa2lVdjBxMGpvaUFnYzhYUWdrNXFGVUZ4SW9yVnhkMGgwNQ=="
+          "dnt"="1"
+          "origin"="https://hyperexecute.lambdatest.com"
+          "priority"="u=1, i"
+          "referer"="https://hyperexecute.lambdatest.com/hyperexecute/projects/detail?projectId=01KGS9WBZTM8R4AW3HBQW8GXWY"
+          "sec-ch-ua"="`"Not(A:Brand`";v=`"8`", `"Chromium`";v=`"144`", `"Google Chrome`";v=`"144`""
+          "sec-ch-ua-mobile"="?0"
+          "sec-ch-ua-platform"="`"Windows`""
+          "sec-fetch-dest"="empty"
+          "sec-fetch-mode"="cors"
+          "sec-fetch-site"="same-site"
+          "sec-gpc"="1"
         } `
         -ContentType "application/json" `
-        -Body "{`"jmeter`":[{`"region`":`"eastus`",`"users`":100,`"duration`":60,`"rampup`":60,`"splitcsv`":false,`"jmx`":`"performance.jmx`"}]}"
+        -Body "{`"jmeter`":[{`"region`":`"eastus`",`"users`":100,`"duration`":60,`"rampup`":60,`"splitcsv`":false,`"jmx`":`"performance.jmx`"}],`"jobLabel`":[],`"globalTimeout`":90}"
   displayName: 'Trigger JMeter HyperExecute Job'
   condition: eq(${{ parameters.RUN_JMETER }}, true)
 

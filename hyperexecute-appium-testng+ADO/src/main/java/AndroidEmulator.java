@@ -53,7 +53,6 @@ public class AndroidEmulator {
             capabilities.setCapability("network", false);
             capabilities.setCapability("visual", true);
             capabilities.setCapability("autoGrantPermissions", true);
-            capabilities.setCapability("appiumVersion", "1.21.0");
             capabilities.setCapability("devicelog", true);
 
             driver = new RemoteWebDriver(
