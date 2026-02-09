@@ -1,90 +1,226 @@
-Here is the updated **README.md** file, structured step-by-step to reflect your current project progress and the scripts in your `package.json`. It aligns with your **Phase 2 Rollout Strategy** to ensure "Successful sample executions" and "Unified reporting".
+
+# 🚀 QE Studio – Unified Automation Testbed  
+_Playwright · Appium · API · Smart UI · JMeter · HyperExecute · Azure DevOps_
+
+This repository provides a **single unified automation framework** to execute **Web UI, Mobile UI, API, Smart UI, and Performance tests** using **LambdaTest HyperExecute**, fully integrated with **Azure DevOps CI/CD**.
+
+It supports **JavaScript & TypeScript Playwright**, **Appium (Android & iOS)**, **API automation**, **Smart UI visual testing**, and **JMeter-based performance testing**.
 
 ---
 
-# 🚀 QE Studio: Playwright & JMeter Unified Testbed
+## 📌 Phase-2 Rollout Goals (Completed)
 
-This repository contains a unified automation framework for **Web/Mobile UI Testing** and **API/Performance Testing**. It supports both JavaScript and TypeScript in a monorepo structure.
-
-## 📂 Project Roadmap (Phase 2)
-
-As per the rollout strategy, we have implemented the following:
-
-1. **Web Automation**: Playwright-based testing in JS and TS.
-2. **Performance Testing**: JMeter integration for load and stress testing.
-3. **CI/CD Integration**: Automated Azure Pipeline setup.
+✔ Successful sample executions  
+✔ Unified CI/CD pipeline  
+✔ Selective test execution via parameters  
+✔ HyperExecute-based scalable execution  
+✔ Centralized reporting & artifacts  
 
 ---
 
-## 🛠️ Local Setup & Installation
+## 🧱 Technology Stack
 
-### 1. Prerequisites
+| Area | Tool |
+|----|----|
+| Web UI | Playwright (JS & TS) |
+| Mobile | Appium (Android & iOS) |
+| API | Rest Assured (via HyperExecute) |
+| Visual Testing | Smart UI (HyperExecute) |
+| Performance | JMeter |
+| CI/CD | Azure DevOps Pipelines |
+| Cloud Grid | LambdaTest HyperExecute |
 
-* **Node.js**: `v18.0.0` or higher (defined in `package.json`).
-* **Java (JDK)**: Required to run JMeter locally.
-* **JMeter**: Installed on your system (added to System PATH).
+---
 
-### 2. Dependencies
+## 📂 Repository Structure (High Level)
 
-From the root directory, install all functional testing libraries:
+```
+
+.
+├── Playwright-TS/
+├── API-RestAssured-hyper/
+├── Hyperexecute-smart-ui/
+├── hyperexecute-appium-testng+ADO/
+│   └── yaml/
+│       ├── android/
+│       └── ios/
+├── Performance-JMeter/
+│   └── performance.jmx
+├── azure-pipelines.yaml
+└── package.json
+
+````
+
+---
+
+## 🛠️ Local Setup
+
+### Prerequisites
+
+- **Node.js** ≥ 18.x
+- **Java JDK** (required for JMeter)
+- **JMeter** (optional for local execution)
+- **LambdaTest credentials**
+  - `LT_USERNAME`
+  - `LT_ACCESS_KEY`
+
+---
+
+### Install Dependencies
 
 ```bash
 npm install
 npx playwright install --with-deps
-
-
-## 🧪 Running Functional Tests (Playwright)
-
-Use the following scripts defined in the `package.json` to execute UI tests:
-
-| Script | Command | Purpose |
-| --- | --- | --- |
-| **TypeScript** | `npm run test:ts` | Runs Playwright TS tests using the config in `/Playwright-TS/` |
-| **JavaScript (Single)** | `npm run test:js` | Runs a single JS test file using Node |
-| **JavaScript (Parallel)** | `npm run test:js-parallel` | Runs JS tests in parallel mode |
-| **Run All UI** | `npm run test:all` | Sequentially runs both TS and JS suites |
+````
 
 ---
 
-## 📈 Running Performance Tests (JMeter)
+## 🧪 Playwright Test Execution
 
-Performance tests are executed via the CLI to support Phase 2 "CI/CD-based automated test pipelines".
+Scripts available via `package.json`:
 
-**Command to execute locally:**
+| Script        | Command                    | Description                         |
+| ------------- | -------------------------- | ----------------------------------- |
+| Playwright TS | `npm run test:ts`          | Runs TS tests from `Playwright-TS/` |
+| JS Single     | `npm run test:js`          | Runs a single JS test               |
+| JS Parallel   | `npm run test:js-parallel` | Runs JS tests in parallel           |
+| All UI        | `npm run test:all`         | Runs all Playwright suites          |
+
+---
+
+## 📱 Mobile Automation (Appium)
+
+Executed **only via Azure Pipeline** using **HyperExecute**.
+
+Supported configurations:
+
+* Android Real Device (Single & Multiple)
+* Android Emulator (Single & Multiple)
+* iOS Real Device (Single & Multiple)
+* iOS Simulator (Single)
+
+Each configuration is triggered sequentially using dedicated HyperExecute YAML files.
+
+---
+
+## 🌐 API Automation (HyperExecute)
+
+* REST Assured based API tests
+* Executed via HyperExecute CLI
+* Controlled using Azure Pipeline parameter `RUN_API`
+
+---
+
+## 🎨 Smart UI (Visual Testing)
+
+* Visual regression testing using **LambdaTest Smart UI**
+* Executed via HyperExecute
+* Enabled/disabled using pipeline parameter `RUN_SMART_UI`
+
+---
+
+## 📈 Performance Testing (JMeter)
+
+### Local Execution
 
 ```powershell
-# Run from the project root
-jmeter -n -t Performance-JMeter/performance.jmx -l results.jtl -e -o ./Performance-JMeter/reports
+jmeter -n `
+  -t Performance-JMeter/performance.jmx `
+  -l results.jtl `
+  -e -o Performance-JMeter/reports
+```
+
+### CI Execution
+
+* Triggered via **LambdaTest HyperExecute API**
+* Controlled using pipeline parameter `RUN_JMETER`
+* HTML performance dashboard is published as a **build artifact**
+
+---
+
+## ☁️ Azure DevOps Pipeline
+
+### Trigger
+
+```yaml
+trigger:
+  - main
+```
+
+### Selective Execution Parameters
+
+| Parameter        | Purpose             |
+| ---------------- | ------------------- |
+| `RUN_PLAYWRIGHT` | Web UI execution    |
+| `RUN_API`        | API tests           |
+| `RUN_SMART_UI`   | Visual testing      |
+| `RUN_APPIUM`     | Mobile execution    |
+| `RUN_JMETER`     | Performance testing |
+
+Each module runs **only if its parameter is enabled**.
+
+---
+
+## 📊 Reports & Artifacts
+
+✔ JUnit test results published
+✔ Playwright & Appium results combined
+✔ JMeter HTML dashboard published as build artifact
+
+---
+
+## 🔐 Required Pipeline Variables
+
+Set these securely in Azure DevOps:
+
+```
+LT_USERNAME
+LT_ACCESS_KEY
+```
+
+---
+
+## 🧹 .gitignore Recommendations
+
+```
+test-results/
+surefire-reports/
+reports/
+results.jtl
+jmeter.log
+node_modules/
+```
+
+---
+
+## ✅ Current Status
+
+* Pipeline is **production-ready**
+* All automation layers integrated
+* Phase-2 rollout objectives achieved
+
+---
+
+### 🚦 Next Optional Enhancements
+
+* Parallel HyperExecute job orchestration
+* Allure unified reporting
+* Test selection via tags/groups
+* Environment-based config switching
+
+---
+
+👩‍💻 **Maintained by QE Studio Automation Team**
 
 ```
 
-### Analyzing Results
-
-1. **GUI Mode**: Open `jmeter.bat`, add a **View Results Tree** listener, and browse for the `results.jtl` file.
-2. **HTML Dashboard**: Open `Performance-JMeter/reports/index.html` in your browser for graphical performance metrics.
-
 ---
 
-## ☁️ CI/CD Integration (Azure DevOps)
+If you want, next I can:
+- ✅ Add **Allure reporting section**
+- ✅ Create **ARCHITECTURE.md**
+- ✅ Add **Pipeline screenshots checklist**
+- ✅ Optimize pipeline for **parallel execution**
 
-The `Azure_pipeline.yaml` is configured to trigger on every push to the `main` branch.
-
-* **Functional**: Executes Playwright suites.
-* **Performance**: Installs JMeter and runs `performance.jmx`.
-* **Artifacts**: Publishes a unified **Performance Dashboard** as a build artifact.
-
----
-
-## 🧹 Git Best Practices
-
-To keep the repo clean, ensure your `.gitignore` excludes local artifacts:
-
-* `results.jtl` (Raw performance data).
-* `jmeter.log` (Local execution logs).
-* `reports/` and `test-results/` (Generated output).
-
----
-
-### What should you do next?
-
-Since your README and local setup are now complete, **would you like me to show you how to commit these changes to your GitHub "origin" and verify if the Azure Pipeline triggers correctly?**
+Just tell me 👍
+```
